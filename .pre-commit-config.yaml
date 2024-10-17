@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: shellcheck
+        language: system
+        entry: shellcheck
+        files: "pixipin|test.sh"
+        pass_filenames: true

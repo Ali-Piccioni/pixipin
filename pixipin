@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+
+PIXIPIN_CACHE_DIR=${PIXIPIN_CACHE_DIR:-/tmp/pixipin}
+
+log() {
+  echo pixipin: "$@" >&2
+}
+
+log_fatal() {
+  log FATAL "$@"
+  exit 1
+}
+
+findup() {
+  local file="$1"
+  local dir="$PWD"
+  while [ "$dir" != "/" ]; do
+    if [ -e "$dir/$file" ]; then
+      echo "$dir/$file"
+      return 0
+    fi
+    dir=$(dirname "$dir")
+  done
+  return 1
+}
+
+fetch_latest_version() {
+  # Set a GitHub token on GitHub actions CI to not get throttled by rate limits.
+  if [ -n "$PIXIPIN_GITHUB_TOKEN" ]; then
+    if ! response=$(curl --silent --fail -H "Authorization: token $PIXIPIN_GITHUB_TOKEN" "https://api.github.com/repos/prefix-dev/pixi/releases/latest"); then
+      log_fatal "Error: Failed to fetch release information from GitHub."
+    fi
+  else
+    if ! response=$(curl --silent --fail "https://api.github.com/repos/prefix-dev/pixi/releases/latest"); then
+      log_fatal "Error: Failed to fetch release information from GitHub."
+    fi
+  fi
+
+  if ! version=$(echo "$response" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'); then
+    log_fatal "Error: Failed to extract the tag name from the GitHub API response."
+  fi
+
+  echo "$version"
+}
+
+download_pixi() {
+  version=$1
+  pixi_filename=$2
+
+  if [ "$version" == "latest" ]; then
+    log "using latest pixi version"
+    if ! version=$(fetch_latest_version); then
+      exit 1
+    fi
+  fi
+  log "Using version: $version"
+
+  if [ ! -f "$PIXIPIN_CACHE_DIR/$pixi_filename$version" ]; then
+    mkdir -p "$PIXIPIN_CACHE_DIR"
+    tmp=$(mktemp)
+    url="https://github.com/prefix-dev/pixi/releases/download/$version/$pixi_filename"
+    log "installing $version from $url"
+    curl --fail-with-body --silent -L -o "$tmp" "$url" || log_fatal "failed to download $url"
+    chmod u+x "$tmp"
+    mv "$tmp" "$PIXIPIN_CACHE_DIR/$pixi_filename$version"
+  fi
+}
+
+load_pixi_rc() {
+  if ! file_found=$(findup "pixi.toml"); then
+    echo latest
+    return 0
+  fi
+
+  pixipinrc_file=$(dirname "$file_found")/.pixipinrc
+  if [ ! -f "$pixipinrc_file" ]; then
+    echo latest
+    return 0
+  else
+    log "Using .pixipinrc version: $(cat "$pixipinrc_file")"
+    cat "$pixipinrc_file"
+    return 0
+  fi
+}
+
+get_platform_string() {
+  # Detect OS type
+  OS=""
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    OS="unknown-linux-musl"
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    OS="apple-darwin"
+  else
+    log_fatal "Unsupported OS: $OSTYPE"
+  fi
+
+  # Detect architecture type
+  ARCH=$(uname -m)
+
+  if [[ "$ARCH" == "x86_64" ]]; then
+    ARCH="x86_64"
+  elif [[ "$ARCH" == "aarch64" ]] || [[ "$ARCH" == "arm64" ]]; then
+    ARCH="aarch64"
+  else
+    log_fatal "Unsupported architecture: $ARCH" >&2
+  fi
+
+  # Return platform string
+  echo "${ARCH}-${OS}"
+}
+
+pixi_filename=pixi-$(get_platform_string)
+version=$(load_pixi_rc)
+download_pixi "$version" "$pixi_filename"
+exec "$PIXIPIN_CACHE_DIR/$pixi_filename$version" "$@"

@@ -1,0 +1,47 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  run-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        arch: [x64, arm64]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up architecture
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          if [ "${{ matrix.arch }}" == "arm64" ]; then
+            sudo dpkg --add-architecture arm64
+          fi
+
+      - name: Run script
+        env:
+          PIXIPIN_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./test.sh
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Setup pixi
+        uses: prefix-dev/setup-pixi@d72307a91ccc8a856376cdb9ff5b074a04422409
+        with:
+          pixi-version: v0.33.0
+          activate-environment: true
+          cache: false
+
+      - name: Run pre-commit checks
+        run: pre-commit run --all-files
