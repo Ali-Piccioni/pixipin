@@ -5,8 +5,10 @@ pixipin is a simple launcher for pixi.
 ## About pixipin
 pixipin is a thin wrapper for pixi that provides helpful guarnatees on the version of pixi that will run.
 
-1. If the file `.pixipinrc`exists next to `pixi.toml`, then `pixipin` will update pixi to the speicfied version and execute pixi.
-2. Otherwise, `pixipin` will update to the latest pixi version and execute `pixi`.
+1. When `.pixipinrc` exists, pixipin will use the version of pixi specific in that file.
+2. Otherwise, pixipin defaults to the latest `pixi` version.
+
+pixipin automatically downloads and caches the pixi executibles.
 
 ## Installation
 ```
@@ -15,7 +17,8 @@ pixipin is a thin wrapper for pixi that provides helpful guarnatees on the versi
     sudo chmod a+x /usr/local/bin/pixi
 
     # Make sure pixi points to /usr/local/bin/pixi
-    # If not, then you need to either remove the standard pixi or promote pixipin in your PATH.
+    # If not, then you need to either remove the
+    # standard pixi or promote pixipin in your PATH.
     which pixi
 ```
 
