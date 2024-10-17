@@ -1,12 +1,14 @@
 # pixipin
 
-pixipin is an experimental drop-in replacement for pixi.
+pixipin is a simple launcher for pixi.
 
-pixipin runs in two modes
+## About pixipin
+pixipin is a thin wrapper for pixi that provides helpful guarnatees on the version of pixi that will run.
+
 1. If the file `.pixipinrc`exists next to `pixi.toml`, then `pixipin` will update pixi to the speicfied version and execute pixi.
 2. Otherwise, `pixipin` will update to the latest pixi version and execute `pixi`.
 
-Usage:
+## Installation
 ```
     # Installation
     sudo curl -o /usr/local/bin/pixi https://raw.githubusercontent.com/Ali-Piccioni/pixipin/main/pixipin
@@ -17,6 +19,7 @@ Usage:
     which pixi
 ```
 
+## Usage
 ```
     # Execute pixi commands normally
     # This will use the latest version of pixi.
