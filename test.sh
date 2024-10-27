@@ -4,7 +4,9 @@ tmp=$(mktemp -d)
 cachetmp=$(mktemp -d)
 trap 'rm -fr $tmp $cachetmp' EXIT
 
-git clone . "$tmp" 2>/dev/null
+# Setup the test environment
+cp pixipin "$tmp"
+touch "$tmp/pixi.toml"
 
 export PIXIPIN_CACHE_DIR=$cachetmp
 pushd "$tmp" || exit 1
@@ -28,6 +30,27 @@ if ! ./pixipin --version | grep "pixi 0.33.0"; then
 else
   echo "TEST PASSED"
 fi
+
+echo
+echo "[TEST CACHE]"
+echo "v0.33.0" >.pixipinrc
+if ! ./pixipin --version 2>&1 | grep 'v0.33.0 \[cached\]'; then
+  echo "TEST FAILED"
+  exit 1
+else
+  echo "TEST PASSED"
+fi
+
+echo
+echo "[TEST NO_GITHUB_TOKEN]"
+echo "v0.33.0" >.pixipinrc
+if ! PIXIPIN_GITHUB_TOKEN='' ./pixipin --version | grep "pixi 0.33.0"; then
+  echo "TEST FAILED"
+  exit 1
+else
+  echo "TEST PASSED"
+fi
+
 
 echo
 echo "[TEST .pixipinrc garbage]"

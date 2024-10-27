@@ -53,7 +53,6 @@ download_pixi() {
       exit 1
     fi
   fi
-  log "Using version: $version"
 
   if [ ! -f "$PIXIPIN_CACHE_DIR/$pixi_filename$version" ]; then
     mkdir -p "$PIXIPIN_CACHE_DIR"
@@ -63,6 +62,9 @@ download_pixi() {
     curl --fail-with-body --silent -L -o "$tmp" "$url" || log_fatal "failed to download $url"
     chmod u+x "$tmp"
     mv "$tmp" "$PIXIPIN_CACHE_DIR/$pixi_filename$version"
+    log "Using version: $version"
+  else
+    log "Using version: $version [cached]"
   fi
 }
 
