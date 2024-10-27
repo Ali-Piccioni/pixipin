@@ -1,6 +1,6 @@
 # pixipin
 
-pixipin is a simple launcher for pixi.
+pixipin is a simple launcher for the pixi package manager.
 
 ## About pixipin
 pixipin is a thin wrapper for pixi that provides helpful guarnatees on the version of pixi that will run.
