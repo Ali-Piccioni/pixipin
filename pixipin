@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PIXIPIN_CACHE_DIR=${PIXIPIN_CACHE_DIR:-/tmp/pixipin}
+PIXIPIN_CACHE_DIR=${PIXIPIN_CACHE_DIR:-$HOME/.pixipin/cache/bin}
 
 log() {
   echo pixipin: "$@" >&2
