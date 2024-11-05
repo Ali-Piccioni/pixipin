@@ -12,14 +12,7 @@ pixipin automatically downloads and caches the pixi executibles.
 
 ## Installation
 ```
-    # Installation
-    sudo curl -o /usr/local/bin/pixi https://raw.githubusercontent.com/Ali-Piccioni/pixipin/main/pixipin
-    sudo chmod a+x /usr/local/bin/pixi
-
-    # Make sure pixi points to /usr/local/bin/pixi
-    # If not, then you need to either remove the
-    # standard pixi or promote pixipin in your PATH.
-    which pixi
+    curl -sSL https://raw.githubusercontent.com/Ali-Piccioni/pixipin/main/install.sh | sudo bash
 ```
 
 ## Usage
